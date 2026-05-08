@@ -2,14 +2,22 @@ load("@rules_dotnet//dotnet:defs.bzl", "csharp_binary", "csharp_library", "cshar
 
 csharp_library(
     name = "program_lib",
-    srcs = ["Program.cs"],
+    srcs = [
+        "Program.cs",
+        "subtask-a/SubtaskA.cs",
+        "subtask-b/SubtaskB.cs",
+    ],
     target_frameworks = ["net9.0"],
     visibility = ["//visibility:public"],
 )
 
 csharp_binary(
     name = "program",
-    srcs = ["Program.cs"],
+    srcs = [
+        "Program.cs",
+        "subtask-a/SubtaskA.cs",
+        "subtask-b/SubtaskB.cs",
+    ],
     target_frameworks = ["net9.0"],
     visibility = ["//visibility:public"],
 )

@@ -10,7 +10,11 @@ cc_library(
 cc_binary(
     name = "main",
     srcs = ["main.cc"],
-    deps = [":main_lib"],
+    deps = [
+        ":main_lib",
+        "//cpp-task/subtask-a",
+        "//cpp-task/subtask-b",
+    ],
     visibility = ["//visibility:public"],
 )
 

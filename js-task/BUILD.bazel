@@ -3,6 +3,10 @@ load("@aspect_rules_js//js:defs.bzl", "js_binary", "js_test")
 js_binary(
     name = "main",
     entry_point = "main.js",
+    data = [
+        "//js-task/subtask-a",
+        "//js-task/subtask-b",
+    ],
     visibility = ["//visibility:public"],
 )
 

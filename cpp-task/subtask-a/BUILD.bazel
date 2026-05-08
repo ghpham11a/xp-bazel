@@ -1,0 +1,8 @@
+load("@rules_cc//cc:defs.bzl", "cc_library")
+
+cc_library(
+    name = "subtask-a",
+    srcs = ["subtask_a.cc"],
+    hdrs = ["subtask_a.h"],
+    visibility = ["//cpp-task:__pkg__"],
+)

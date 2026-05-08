@@ -4,6 +4,10 @@ go_library(
     name = "go_lib",
     srcs = ["main.go"],
     importpath = "xp_bazel/go",
+    deps = [
+        "//go-task/subtask-a",
+        "//go-task/subtask-b",
+    ],
     visibility = ["//visibility:public"],
 )
 

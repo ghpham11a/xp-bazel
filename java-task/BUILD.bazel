@@ -3,6 +3,10 @@ load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
 java_library(
     name = "main_lib",
     srcs = ["src/Main.java"],
+    deps = [
+        "//java-task/subtask-a",
+        "//java-task/subtask-b",
+    ],
     visibility = ["//visibility:public"],
 )
 
