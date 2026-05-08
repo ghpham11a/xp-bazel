@@ -1,0 +1,21 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+
+cc_library(
+    name = "main_lib",
+    srcs = ["lib.cc"],
+    hdrs = ["main.h"],
+    visibility = ["//visibility:public"],
+)
+
+cc_binary(
+    name = "main",
+    srcs = ["main.cc"],
+    deps = [":main_lib"],
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "main_test",
+    srcs = ["main_test.cc"],
+    deps = [":main_lib"],
+)

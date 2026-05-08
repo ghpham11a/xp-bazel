@@ -1,0 +1,26 @@
+load("@rules_dotnet//dotnet:defs.bzl", "csharp_binary", "csharp_library", "csharp_test")
+
+csharp_library(
+    name = "program_lib",
+    srcs = ["Program.cs"],
+    target_frameworks = ["net9.0"],
+    visibility = ["//visibility:public"],
+)
+
+csharp_binary(
+    name = "program",
+    srcs = ["Program.cs"],
+    target_frameworks = ["net9.0"],
+    visibility = ["//visibility:public"],
+)
+
+csharp_test(
+    name = "program_test",
+    srcs = ["ProgramTest.cs"],
+    target_frameworks = ["net9.0"],
+    deps = [
+        ":program_lib",
+        "@paket.rules_dotnet//deps:xunit.core",
+        "@paket.rules_dotnet//deps:xunit.assert",
+    ],
+)

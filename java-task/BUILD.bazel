@@ -1,0 +1,21 @@
+load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+
+java_library(
+    name = "main_lib",
+    srcs = ["src/Main.java"],
+    visibility = ["//visibility:public"],
+)
+
+java_binary(
+    name = "main",
+    main_class = "Main",
+    runtime_deps = [":main_lib"],
+    visibility = ["//visibility:public"],
+)
+
+java_test(
+    name = "main_test",
+    srcs = ["test/MainTest.java"],
+    test_class = "MainTest",
+    deps = [":main_lib"],
+)

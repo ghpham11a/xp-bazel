@@ -1,0 +1,19 @@
+# Work around Windows TLS certificate issues - use Windows cert store
+startup --host_jvm_args=-Djavax.net.ssl.trustStoreType=Windows-ROOT
+
+# Auto-shutdown the Bazel server after 5 minutes of inactivity to avoid
+# zombie JVM processes holding file locks on Windows.
+startup --max_idle_secs=300
+
+# Stop Bazel from creating the convenience symlinks (bazel-bin, bazel-out,
+# bazel-testlogs, bazel-<workspace>) at the repo root. The real outputs
+# still live under .bazel-output/ (see startup flag above); we just don't
+# want four extra symlinks cluttering the workspace / git status.
+build --experimental_convenience_symlinks=ignore
+
+# Common settings
+build --java_language_version=21
+build --java_runtime_version=remotejdk_21
+
+# Show which tests have oversized timeout/size declarations
+test --test_verbose_timeout_warnings
