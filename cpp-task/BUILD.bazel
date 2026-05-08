@@ -1,10 +1,35 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
 
-cc_library(
+# --- Module 8: Starlark helpers demo ---
+# These helpers live in //tools/build_defs/ — the conventional home for
+# shared .bzl files in a monorepo. Loading them here demonstrates how
+# BUILD files consume custom Starlark functions via load().
+# In a real codebase with dozens of cc_library targets, helpers like
+# filter_sources() and cc_lib_attrs() reduce boilerplate significantly.
+load("//tools/build_defs:cc_helpers.bzl", "cc_lib_attrs", "filter_sources")
+load("//tools/build_defs:common.bzl", "require_non_empty")
+
+# Validate that our sources list isn't accidentally empty.
+# require_non_empty() calls fail() if it is — halting the build immediately.
+_srcs = require_non_empty("main_lib srcs", ["lib.cc"])
+
+# filter_sources() drops anything that isn't a C/C++ file.
+# Here it's a no-op (all files are .cc/.h), but in a real target with
+# globs it would catch stray .md or .txt files.
+_srcs = filter_sources(_srcs)
+
+# cc_lib_attrs() returns a dict of cc_library attributes from minimal inputs.
+# We unpack it explicitly because **kwargs is not allowed in BUILD files.
+_attrs = cc_lib_attrs(
     name = "main_lib",
-    srcs = ["lib.cc"],
+    srcs = _srcs,
     hdrs = ["main.h"],
-    visibility = ["//visibility:public"],
+)
+cc_library(
+    name = _attrs["name"],
+    srcs = _attrs["srcs"],
+    hdrs = _attrs["hdrs"],
+    visibility = _attrs["visibility"],
 )
 
 cc_binary(
