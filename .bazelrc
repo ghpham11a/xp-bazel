@@ -17,3 +17,6 @@ build --java_runtime_version=remotejdk_21
 
 # Show which tests have oversized timeout/size declarations
 test --test_verbose_timeout_warnings
+
+# Always re-run coverage without cached test results
+coverage --nocache_test_results

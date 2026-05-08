@@ -22,3 +22,15 @@ go_test(
     srcs = ["main_test.go"],
     embed = [":go_lib"],
 )
+
+go_test(
+    name = "fixture_test",
+    srcs = ["fixture_test.go"],
+    size = "small",
+    data = ["testdata/expected_messages.json"],
+    deps = [
+        "//go-task/subtask-a",
+        "//go-task/subtask-b",
+        "@rules_go//go/runfiles",
+    ],
+)

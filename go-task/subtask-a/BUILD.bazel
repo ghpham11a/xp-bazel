@@ -1,8 +1,15 @@
-load("@rules_go//go:def.bzl", "go_library")
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "subtask-a",
     srcs = ["subtask_a.go"],
     importpath = "xp_bazel/go-task/subtask-a",
     visibility = ["//go-task:__pkg__"],
+)
+
+go_test(
+    name = "subtask-a_test",
+    srcs = ["subtask_a_test.go"],
+    size = "small",
+    embed = [":subtask-a"],
 )

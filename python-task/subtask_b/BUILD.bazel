@@ -1,8 +1,15 @@
-load("@rules_python//python:defs.bzl", "py_library")
+load("@rules_python//python:defs.bzl", "py_library", "py_test")
 
 py_library(
     name = "subtask_b",
     srcs = ["subtask_b.py"],
     imports = [".."],
-    visibility = ["//python-task:__pkg__"],
+    visibility = ["//python-task:__subpackages__"],
+)
+
+py_test(
+    name = "subtask_b_test",
+    srcs = ["subtask_b_test.py"],
+    size = "small",
+    deps = [":subtask_b"],
 )

@@ -22,13 +22,25 @@ csharp_binary(
     visibility = ["//visibility:public"],
 )
 
+# --- C# test target ---
+#
+# Uses plain C# assertions instead of xunit. A Bazel test is just an
+# executable that returns exit code 0 (pass) or non-zero (fail).
+# xunit hit runtime deps.json resolution issues on Windows with
+# rules_dotnet, so plain assertions work fine for a learning project.
+#
+# Source files are included directly (not via :program_lib) to avoid
+# cross-assembly deps.json resolution issues.
 csharp_test(
     name = "program_test",
-    srcs = ["ProgramTest.cs"],
-    target_frameworks = ["net9.0"],
-    deps = [
-        ":program_lib",
-        "@paket.rules_dotnet//deps:xunit.core",
-        "@paket.rules_dotnet//deps:xunit.assert",
+    srcs = [
+        # The test file with Main() entry point and assertions.
+        "ProgramTest.cs",
+        # Source files under test, included directly to avoid deps.json
+        # cross-assembly resolution issues (see Problem 3 above).
+        "subtask-a/SubtaskA.cs",
+        "subtask-b/SubtaskB.cs",
     ],
+    target_frameworks = ["net9.0"],
+    # No external deps needed — plain C# assertions use only the BCL.
 )

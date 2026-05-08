@@ -3,6 +3,12 @@ load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
 py_library(
     name = "main_lib",
     srcs = ["main.py"],
+    imports = ["."],
+    deps = [
+        "//python-task/subtask_a",
+        "//python-task/subtask_b",
+        "@pip_deps//colorama",
+    ],
     visibility = ["//visibility:public"],
 )
 
@@ -21,4 +27,23 @@ py_test(
     name = "main_test",
     srcs = ["main_test.py"],
     deps = [":main_lib"],
+)
+
+py_test(
+    name = "fixture_test",
+    srcs = ["fixture_test.py"],
+    size = "small",
+    data = ["testdata/expected_messages.json"],
+    deps = [
+        "//python-task/subtask_a",
+        "//python-task/subtask_b",
+        "@rules_python//python/runfiles",
+    ],
+)
+
+py_test(
+    name = "flaky_test",
+    srcs = ["flaky_test.py"],
+    size = "small",
+    flaky = True,
 )
