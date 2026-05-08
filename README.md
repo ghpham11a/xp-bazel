@@ -1,6 +1,7 @@
 ```bash
 # Build & Run
 bazel run //task-orchestrator:main
+bazel build //...
 
 # Build & Run individual tasks
 bazel run //java-task:main
@@ -20,4 +21,9 @@ bazel test //cpp-task:main_test
 
 # All tests at once
 bazel test //...
+
+# Build configs (--config=<name>)
+bazel build //... --config=debug   # debug symbols, no stripping
+bazel build //... --config=ci      # CI mode: keep going, no cache uploads
+bazel build //cpp-task/... --config=asan  # AddressSanitizer (C/C++ only)
 ```

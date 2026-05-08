@@ -20,3 +20,25 @@ test --test_verbose_timeout_warnings
 
 # Always re-run coverage without cached test results
 coverage --nocache_test_results
+
+# --- Module 7: Named Configs ---
+
+# Default: write BES output to a local JSON file for inspection
+build --build_event_json_file=build_events.json
+
+# CI config: strict, no local cache writes
+build:ci --keep_going
+build:ci --noremote_upload_local_results
+build:ci --build_event_json_file=build_events_ci.json
+test:ci --test_output=errors
+
+# Debug config
+build:debug -c dbg
+build:debug --strip=never
+
+# AddressSanitizer config (C/C++ only)
+build:asan -c dbg
+build:asan --strip=never
+build:asan --copt=-fsanitize=address
+build:asan --copt=-fno-omit-frame-pointer
+build:asan --linkopt=-fsanitize=address
