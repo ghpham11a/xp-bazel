@@ -1,0 +1,13 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+
+py_binary(
+    name = "main",
+    srcs = ["main.py"],
+    data = [
+        "//java-task:main",
+        "//go-task:go_bin",
+        "//js-task:main",
+        "//python-task:main",
+        "//cpp-task:main",
+    ],
+)

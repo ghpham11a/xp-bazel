@@ -1,5 +1,8 @@
 ```bash
 # Build & Run
+bazel run //task-orchestrator:main
+
+# Build & Run individual tasks
 bazel run //java-task:main
 bazel run //go-task:go_bin
 bazel run //js-task:main
