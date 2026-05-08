@@ -57,3 +57,16 @@ pip.parse(
     requirements_lock = "//:requirements_lock.txt",
 )
 use_repo(pip, "pip_deps")
+
+# --- Module 5: Version conflict exercise ---
+# We request bazel_skylib 1.8.2, but other deps (like rules_go, rules_java)
+# also depend on bazel_skylib and may request different versions.
+# MVS (Minimal Version Selection) resolves this by picking the highest
+# requested version across the entire dep graph.
+#
+# To force a specific version, you can use single_version_override:
+# single_version_override(module_name = "bazel_skylib", version = "1.8.2")
+#
+# To see how MVS resolved it:
+#   bazel mod graph | grep skylib
+#   bazel mod explain @bazel_skylib
