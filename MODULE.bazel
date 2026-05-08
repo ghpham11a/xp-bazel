@@ -1,0 +1,4 @@
+module(
+    name = "xp_bazel",
+    version = "0.0.1"
+)
