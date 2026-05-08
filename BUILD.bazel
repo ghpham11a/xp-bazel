@@ -1,0 +1,8 @@
+# Root BUILD.bazel is needed so Bazel treats the repo root as a package.
+# Files referenced by module extensions (like requirements_lock.txt) must
+# be inside a Bazel package (a directory with a BUILD file).
+# This file could live in python-task/ instead, but root is conventional
+# since module extensions are global and shared across the whole monorepo.
+exports_files([
+    "requirements_lock.txt",
+])

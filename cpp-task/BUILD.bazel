@@ -21,5 +21,8 @@ cc_binary(
 cc_test(
     name = "main_test",
     srcs = ["main_test.cc"],
-    deps = [":main_lib"],
+    deps = [
+        ":main_lib",
+        "@nlohmann_json//:json",
+    ],
 )

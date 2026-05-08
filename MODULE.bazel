@@ -4,7 +4,7 @@ module(
 )
 
 # C++
-bazel_dep(name = "rules_cc", version = "0.1.1")
+bazel_dep(name = "rules_cc", version = "0.2.17")
 
 # Java
 bazel_dep(name = "rules_java", version = "9.1.0")
@@ -36,3 +36,24 @@ dotnet.toolchain(dotnet_version = "9.0.100")
 use_repo(dotnet, "dotnet_toolchains")
 
 register_toolchains("@dotnet_toolchains//:all")
+
+# --- Module 5: External Dependencies ---
+
+# 1. Pure Bazel module
+bazel_dep(name = "bazel_skylib", version = "1.8.2")
+
+# 2. C/C++ library from BCR
+bazel_dep(name = "nlohmann_json", version = "3.12.0.bcr.1")
+
+# 3. Language ecosystem package (pip)
+# pip.parse() is a module extension — it runs once globally, not per-package.
+# The requirements_lock.txt could live in python-task/ instead of the root,
+# but in large monorepos it's typically kept at the root because all Python
+# targets share the same resolved pip dependencies.
+pip = use_extension("@rules_python//python/extensions:pip.bzl", "pip")
+pip.parse(
+    hub_name = "pip_deps",
+    python_version = "3.12",
+    requirements_lock = "//:requirements_lock.txt",
+)
+use_repo(pip, "pip_deps")

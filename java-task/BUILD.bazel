@@ -1,4 +1,11 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_java//java:defs.bzl", "java_binary", "java_library", "java_test")
+
+write_file(
+    name = "version_file",
+    out = "version.txt",
+    content = ["0.0.1"],
+)
 
 java_library(
     name = "main_lib",
@@ -14,6 +21,7 @@ java_binary(
     name = "main",
     main_class = "Main",
     runtime_deps = [":main_lib"],
+    data = [":version_file"],
     visibility = ["//visibility:public"],
 )
 

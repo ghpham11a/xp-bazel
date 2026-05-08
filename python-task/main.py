@@ -1,3 +1,4 @@
+from colorama import Fore, Style
 from subtask_a.subtask_a import get_message as get_message_a
 from subtask_b.subtask_b import get_message as get_message_b
 
@@ -7,6 +8,6 @@ def get_message():
 
 
 if __name__ == "__main__":
-    print(get_message_a())
-    print(get_message_b())
-    print(get_message())
+    print(Fore.GREEN + get_message_a() + Style.RESET_ALL)
+    print(Fore.GREEN + get_message_b() + Style.RESET_ALL)
+    print(Fore.GREEN + get_message() + Style.RESET_ALL)

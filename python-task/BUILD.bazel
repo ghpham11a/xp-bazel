@@ -12,6 +12,7 @@ py_binary(
     deps = [
         "//python-task/subtask_a",
         "//python-task/subtask_b",
+        "@pip_deps//colorama",
     ],
     visibility = ["//visibility:public"],
 )
