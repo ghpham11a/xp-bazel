@@ -88,11 +88,6 @@ if __name__ == "__main__":
         results.append((name, success))
         print()
 
-    print("=== Summary ===")
-    for name, success in results:
-        status = "PASS" if success else "FAIL"
-        print(f"  {name}: {status}")
-
     failures = sum(1 for _, s in results if not s)
     if failures:
         print(f"\n{failures} task(s) failed.")
