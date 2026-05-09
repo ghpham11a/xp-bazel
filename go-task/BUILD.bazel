@@ -1,4 +1,8 @@
 load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+load("//tools/build_defs:word_count.bzl", "word_count")
+
+# Make source files visible to //tools/build_defs for Module 10 exercises.
+exports_files(["main.go"], visibility = ["//tools/build_defs:__pkg__"])
 
 # --- Module 9: Macro equivalent ---
 # The three targets below (go_lib, go_bin, go_test) are exactly what
@@ -38,6 +42,19 @@ go_test(
     name = "go_test",
     srcs = ["main_test.go"],
     embed = [":go_lib"],
+)
+
+# --- Module 10: Custom rule usage ---
+# word_count is our custom rule from //tools/build_defs:word_count.bzl.
+# It wraps a Python tool that produces a JSON report — same pattern as
+# a linter or doc-generator that you'd apply to every package.
+#
+# Build it:   bazel build //go-task:main_word_count
+# View output: cat bazel-bin/go-task/main_word_count.json
+
+word_count(
+    name = "main_word_count",
+    src = "main.go",
 )
 
 go_test(

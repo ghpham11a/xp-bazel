@@ -1,2 +1,213 @@
-# Build infrastructure — shared .bzl helpers for the monorepo.
-# Nothing to build here; the .bzl files are consumed via load().
+# =========================================================================
+# Module 10 — Custom Rules and Providers
+# =========================================================================
+#
+# This BUILD file exercises all four Module 10 lessons:
+#   1. A trivial rule (header_file)
+#   2. A rule that wraps a tool (word_count)
+#   3. A rule with a custom provider (task_info + task_summary)
+#   4. A rule with depset for transitive info (transitive_manifest)
+#
+# Build everything:  bazel build //tools/build_defs/...
+# =========================================================================
+
+# ─── Exercise 1: Trivial rule — prepend a header to a file ─────────────
+#
+# This loads our custom rule from the .bzl file we wrote.
+# load() is how BUILD files import symbols from .bzl files.
+# The first argument is the label of the .bzl file.
+# The remaining arguments are the names to import.
+
+load("@rules_python//python:defs.bzl", "py_binary")
+load("//tools/build_defs:header_file.bzl", "header_file")
+load("//tools/build_defs:module_info.bzl", "module_info", "transitive_manifest")
+load("//tools/build_defs:task_info.bzl", "task_info", "task_summary")
+load("//tools/build_defs:word_count.bzl", "word_count")
+
+# Use the rule just like any built-in rule (cc_library, py_binary, etc.).
+# Under the hood, Bazel will:
+#   1. Call _header_file_impl() during analysis
+#   2. Run the shell command during execution
+#   3. Produce the output file in bazel-bin/tools/build_defs/
+#
+# We use a real source file from the Go task package.
+# The file must be exported via exports_files() in its own BUILD.
+#
+# Build it:   bazel build //tools/build_defs:go_main_with_header
+# View output: cat bazel-bin/tools/build_defs/go_main_with_header.go
+
+header_file(
+    name = "go_main_with_header",
+    src = "//go-task:main.go",
+    header = "// Copyright 2026 xp-bazel project. All rights reserved.",
+)
+
+# A second usage with the default header to show how defaults work.
+header_file(
+    name = "py_main_with_header",
+    src = "//python-task:main.py",
+    # No "header" attr → uses the default from the rule definition.
+)
+
+# ─── Exercise 2: A rule that wraps a tool ──────────────────────────────
+#
+# First, we define the tool itself as a py_binary. This is the executable
+# that our word_count rule will invoke during the build.
+#
+# The tool is a BUILD-TIME tool — it runs on the build machine, not in
+# the final application. That's why the word_count rule declares it with
+# cfg = "exec" (see word_count.bzl for the full explanation).
+
+py_binary(
+    name = "wordcount_tool",
+    srcs = ["wordcount_tool.py"],
+    # Public visibility because this is a shared build tool — any package
+    # that uses the word_count rule needs to access this executable.
+    visibility = ["//visibility:public"],
+)
+
+# Now use our word_count rule on real source files from the repo.
+# It will run wordcount_tool.py and produce a JSON report.
+#
+# Build it:   bazel build //tools/build_defs:go_main_report
+# View output: cat bazel-bin/tools/build_defs/go_main_report.json
+
+word_count(
+    name = "go_main_report",
+    src = "//go-task:main.go",
+    # "tool" attribute uses the default (//tools/build_defs:wordcount_tool),
+    # so we don't need to specify it. But you COULD override it:
+    # tool = "//some/other:wordcount_tool",
+)
+
+# ─── Exercise 3: A rule with a custom provider ────────────────────────
+#
+# Here we demonstrate provider-based communication between rules:
+#   1. task_info targets PRODUCE a TaskInfo provider (metadata)
+#   2. task_summary CONSUMES TaskInfo from its deps and writes a report
+#
+# This is the same pattern used by real Bazel rulesets:
+#   - go_library produces GoLibrary provider → go_binary consumes it
+#   - cc_library produces CcInfo provider → cc_binary consumes it
+#   - java_library produces JavaInfo → java_binary consumes it
+#
+# The key insight: providers let you pass STRUCTURED DATA (not just
+# files) between rules. This is what makes Bazel's rule system
+# composable — rules don't need to know each other's internals.
+
+# Producer: each task_info target declares metadata about one task.
+# These don't produce output files — they only carry provider data.
+# We reference real source files from the actual monorepo packages.
+
+task_info(
+    name = "go_task_info",
+    language = "go",
+    description = "Go backend service with subtasks",
+    srcs = ["//go-task:main.go"],
+)
+
+task_info(
+    name = "python_task_info",
+    language = "python",
+    description = "Python data-processing scripts",
+    srcs = ["//python-task:main.py"],
+)
+
+task_info(
+    name = "cpp_task_info",
+    language = "c++",
+    description = "C++ computation library",
+    srcs = [
+        "//cpp-task:main.cc",
+        "//cpp-task:lib.cc",
+    ],
+)
+
+# Consumer: task_summary reads TaskInfo from each dep and generates
+# a summary report.
+#
+# Build it:   bazel build //tools/build_defs:all_tasks_summary
+# View output: cat bazel-bin/tools/build_defs/all_tasks_summary.txt
+#
+# Try adding a dep that ISN'T a task_info target — Bazel will reject
+# it at analysis time because of `providers = [TaskInfo]` on the attr:
+#   deps = [":go_task_info", "//go-task:go_bin"],  # ERROR!
+
+task_summary(
+    name = "all_tasks_summary",
+    deps = [
+        ":go_task_info",
+        ":python_task_info",
+        ":cpp_task_info",
+    ],
+)
+
+# ─── Exercise 4: A rule with depset for transitive info ────────────────
+#
+# This demonstrates depset — Bazel's memory-efficient data structure
+# for accumulating information across transitive dependencies.
+#
+# We model the REAL go-task dependency chain from our monorepo:
+#
+#   go-task/subtask-a ──┐
+#                        ├── go-task (main) ──── go_all
+#   go-task/subtask-b ──┘
+#
+# Each module_info target references the actual .go source files.
+# When we ask go_all for its transitive_srcs, it returns ALL files
+# from itself + go-task + subtask-a + subtask-b — without ever copying
+# the full list at each level (that's the depset magic).
+#
+# Read module_info.bzl for a detailed explanation of WHY depsets exist
+# and HOW they avoid the O(n²) memory problem.
+
+# Leaf modules — the subtask packages at the bottom of the dep graph.
+module_info(
+    name = "go_subtask_a",
+    module_name = "go-task/subtask-a",
+    srcs = ["//go-task/subtask-a:subtask_a.go"],
+    # No deps — this is a leaf node in the graph.
+)
+
+module_info(
+    name = "go_subtask_b",
+    module_name = "go-task/subtask-b",
+    srcs = ["//go-task/subtask-b:subtask_b.go"],
+)
+
+# Middle module — go-task depends on both subtasks, just like the
+# real go_library in //go-task/BUILD.bazel.
+# Its transitive_srcs depset will contain: main.go + subtask_a.go + subtask_b.go
+# But internally, it stores: depset([main.go], transitive=[subtask_a's depset, subtask_b's depset])
+# No list copying happens here — just depset references.
+module_info(
+    name = "go_main_module",
+    module_name = "go-task",
+    srcs = ["//go-task:main.go"],
+    deps = [":go_subtask_a", ":go_subtask_b"],
+)
+
+# Top-level aggregator — depends on the go-task module.
+# Its transitive_srcs depset contains ALL source files, accumulated
+# through the chain without any intermediate flattening.
+module_info(
+    name = "go_all",
+    module_name = "go-task (all)",
+    srcs = [],
+    deps = [":go_main_module"],
+)
+
+# The manifest rule flattens the depset and writes a report.
+# THIS is where .to_list() is called — at the very top, only once.
+#
+# Build it:   bazel build //tools/build_defs:full_manifest
+# View output: cat bazel-bin/tools/build_defs/full_manifest.txt
+#
+# You should see:
+#   go-task (all): 0 direct sources, 3 transitive sources
+#   (main.go, subtask_a.go, subtask_b.go — accumulated via depset)
+
+transitive_manifest(
+    name = "full_manifest",
+    deps = [":go_all"],
+)

@@ -1,4 +1,8 @@
 load("@rules_cc//cc:defs.bzl", "cc_binary", "cc_library", "cc_test")
+load("//tools/build_defs:word_count.bzl", "word_count")
+
+# Make source files visible to //tools/build_defs for Module 10 exercises.
+exports_files(["main.cc", "lib.cc"], visibility = ["//tools/build_defs:__pkg__"])
 
 # --- Module 8: Starlark helpers demo ---
 # These helpers live in //tools/build_defs/ — the conventional home for
@@ -42,6 +46,15 @@ cc_binary(
         "@nlohmann_json//:json",
     ],
     visibility = ["//visibility:public"],
+)
+
+# --- Module 10: Custom rule usage ---
+# word_count applied to C++ source files. The rule doesn't care about
+# the language — it just counts words in any file you give it.
+
+word_count(
+    name = "main_word_count",
+    src = "main.cc",
 )
 
 cc_test(

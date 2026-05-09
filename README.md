@@ -22,6 +22,14 @@ bazel test //cpp-task:main_test
 # All tests at once
 bazel test //...
 
+# Word count reports (Module 10 custom rule)
+bazel build //go-task:main_word_count
+bazel build //python-task:main_word_count
+bazel build //cpp-task:main_word_count
+
+# Module 10 exercises (custom rules & providers)
+bazel build //tools/build_defs/...
+
 # Build configs (--config=<name>)
 bazel build //... --config=debug   # debug symbols, no stripping
 bazel build //... --config=ci      # CI mode: keep going, no cache uploads

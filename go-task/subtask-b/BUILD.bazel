@@ -1,5 +1,8 @@
 load("@rules_go//go:def.bzl", "go_library", "go_test")
 
+# Make source files visible to //tools/build_defs for Module 10 exercises.
+exports_files(["subtask_b.go"], visibility = ["//tools/build_defs:__pkg__"])
+
 go_library(
     name = "subtask-b",
     srcs = ["subtask_b.go"],

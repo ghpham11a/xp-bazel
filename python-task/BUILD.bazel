@@ -1,4 +1,8 @@
 load("@rules_python//python:defs.bzl", "py_binary", "py_library", "py_test")
+load("//tools/build_defs:word_count.bzl", "word_count")
+
+# Make source files visible to //tools/build_defs for Module 10 exercises.
+exports_files(["main.py"], visibility = ["//tools/build_defs:__pkg__"])
 
 py_library(
     name = "main_lib",
@@ -39,6 +43,15 @@ py_test(
         "//python-task/subtask_b",
         "@rules_python//python/runfiles",
     ],
+)
+
+# --- Module 10: Custom rule usage ---
+# Same word_count rule used in //go-task — this is the point of custom
+# rules: define once in //tools/build_defs, reuse across every package.
+
+word_count(
+    name = "main_word_count",
+    src = "main.py",
 )
 
 py_test(
