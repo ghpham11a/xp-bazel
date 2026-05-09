@@ -1,0 +1,89 @@
+# =========================================================================
+# Module 11 — Aspects: BUILD file
+# =========================================================================
+#
+# This BUILD file demonstrates using the target_info_aspect via the
+# target_info_manifest aggregator rule.
+#
+# The aspect walks the dependency graph of each target listed in "deps"
+# and produces a JSON file for every target it visits. The manifest rule
+# then combines all those JSON files into a single report.
+#
+# TWO WAYS TO USE AN ASPECT:
+# ──────────────────────────
+#
+# 1. VIA A RULE (what we do here):
+#    Load the aggregator rule, list your top-level targets in deps,
+#    and the rule handles running the aspect automatically.
+#    This is the clean, user-friendly approach.
+#
+#      bazel build //tools/aspects:project_manifest
+#
+# 2. FROM THE COMMAND LINE (ad-hoc, useful for debugging):
+#    Apply the aspect directly to any target without modifying BUILD files:
+#
+#      bazel build //cpp-task:main \
+#          --aspects=//tools/aspects:target_info.bzl%target_info_aspect \
+#          --output_groups=target_info_files
+#
+#    The --aspects flag says "also run this aspect on the target."
+#    The --output_groups flag says "I want the files from the
+#    'target_info_files' output group that the aspect defines."
+#
+#    This is great for quick exploration — you can point the aspect at
+#    ANY target without writing a BUILD rule first.
+#
+# =========================================================================
+
+load("//tools/aspects:target_info.bzl", "target_info_manifest")
+
+# ── Project-wide manifest ─────────────────────────────────────────────
+#
+# This target runs the aspect over the main binaries of our monorepo.
+# Since the aspect follows "deps" transitively, listing just the
+# top-level binaries is enough — the aspect will automatically visit:
+#
+#   //cpp-task:main
+#     → //cpp-task:main_lib (cc_library)
+#     → //cpp-task/subtask-a (cc_library)
+#     → //cpp-task/subtask-b (cc_library)
+#     → @nlohmann_json//:json (external dep)
+#
+#   //go-task:go_bin
+#     → //go-task:go_lib (go_library)
+#     → //go-task/subtask-a (go_library)
+#     → //go-task/subtask-b (go_library)
+#
+# Build it:
+#   bazel build //tools/aspects:project_manifest
+#
+# View the output:
+#   cat bazel-bin/tools/aspects/project_manifest_manifest.txt
+#
+# You should see a JSON entry for every target in the dependency graph,
+# showing its label, rule kind, source files, and direct dependencies.
+# Notice how the aspect discovered ALL of these targets automatically —
+# you only listed the two top-level binaries.
+
+target_info_manifest(
+    name = "project_manifest",
+    deps = [
+        "//cpp-task:main",
+        "//go-task:go_bin",
+    ],
+)
+
+# ── Single-language manifest ──────────────────────────────────────────
+#
+# You can also create focused manifests for a subset of the project.
+# This one only walks the C++ targets.
+#
+# Build it:
+#   bazel build //tools/aspects:cpp_manifest
+
+target_info_manifest(
+    name = "cpp_manifest",
+    deps = [
+        "//cpp-task:main",
+    ],
+)
