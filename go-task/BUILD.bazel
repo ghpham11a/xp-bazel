@@ -1,5 +1,22 @@
 load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
+# --- Module 9: Macro equivalent ---
+# The three targets below (go_lib, go_bin, go_test) are exactly what
+# the go_service symbolic macro in //tools/build_defs:go_service.bzl
+# generates from a single call:
+#
+#   load("//tools/build_defs:go_service.bzl", "go_service")
+#
+#   go_service(
+#       name = "go",
+#       srcs = ["main.go"],
+#       test_srcs = ["main_test.go"],
+#       deps = [
+#           "//go-task/subtask-a",
+#           "//go-task/subtask-b",
+#       ],
+#   )
+
 go_library(
     name = "go_lib",
     srcs = ["main.go"],
