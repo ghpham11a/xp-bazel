@@ -38,6 +38,28 @@ bazel build //tools/aspects:cpp_manifest
 # Apply the aspect ad-hoc to any target (no BUILD changes needed)
 bazel build //cpp-task:main --aspects=//tools/aspects:target_info.bzl%target_info_aspect --output_groups=target_info_files
 
+# Module 12 — Build Performance: Caching, Sandboxing, Workers
+# 1. Clean build with profiling (produces a Chrome-tracing profile)
+bazel clean
+bazel build //... --profile=profile.gz
+# Open profile.gz at https://ui.perfetto.dev to visualize where time goes
+
+# 2. Incremental build with profiling (touch one file, rebuild)
+# Compare this profile to the clean build — should be much faster
+touch cpp-task/main.cc
+bazel build //... --profile=profile_incremental.gz
+
+# 3. Disable persistent workers (compilers restart every action — slower)
+bazel build //... --worker_sandboxing=false --strategy=Javac=local
+
+# 4. Disable sandboxing (actions can see undeclared inputs — unsafe!)
+bazel build //... --spawn_strategy=local
+# Re-enable by omitting the flag (sandboxing is the default)
+
+# 5. Inspect cache and build info
+bazel info output_base       # where Bazel stores cache and build artifacts
+bazel info execution_root    # the sandbox root for actions
+
 # Build configs (--config=<name>)
 bazel build //... --config=debug   # debug symbols, no stripping
 bazel build //... --config=ci      # CI mode: keep going, no cache uploads
