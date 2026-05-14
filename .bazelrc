@@ -30,6 +30,7 @@ build --build_event_json_file=build_events.json
 build:ci --keep_going
 build:ci --noremote_upload_local_results
 build:ci --build_event_json_file=build_events_ci.json
+build:ci --experimental_convenience_symlinks=normal
 test:ci --test_output=errors
 
 # Debug config
