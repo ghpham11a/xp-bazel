@@ -1,5 +1,5 @@
-# Work around Windows TLS certificate issues - use Windows cert store
-startup --host_jvm_args=-Djavax.net.ssl.trustStoreType=Windows-ROOT
+# Windows TLS fix - loaded only when .bazelrc.windows exists (local-only file)
+try-import .bazelrc.windows
 
 # Auto-shutdown the Bazel server after 5 minutes of inactivity to avoid
 # zombie JVM processes holding file locks on Windows.
