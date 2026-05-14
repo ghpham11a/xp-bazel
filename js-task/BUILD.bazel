@@ -13,5 +13,9 @@ js_binary(
 js_test(
     name = "main_test",
     entry_point = "main.test.js",
-    data = [":main.js"],
+    data = [
+        ":main.js",
+        "//js-task/subtask-a",
+        "//js-task/subtask-b",
+    ],
 )
