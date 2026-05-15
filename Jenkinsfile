@@ -1,5 +1,9 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'gcr.io/bazel-public/bazel:latest'
+        }
+    }
     options {
         timeout(time: 30, unit: 'MINUTES')
         timestamps()
@@ -28,9 +32,9 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'mkdir -p artifacts'
-                sh 'cp bazel-bin/cpp-task/main artifacts/cpp-main'
-                sh 'cp bazel-bin/go-task/go_bin_/go_bin artifacts/go-bin'
-                sh 'cp bazel-bin/java-task/main.jar artifacts/main.jar'
+                sh 'install bazel-bin/cpp-task/main artifacts/cpp-main'
+                sh 'install bazel-bin/go-task/go_bin_/go_bin artifacts/go-bin'
+                sh 'install bazel-bin/java-task/main.jar artifacts/main.jar'
 
                 echo '=== Build Artifacts ==='
 
