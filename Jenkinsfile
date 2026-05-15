@@ -6,18 +6,17 @@ pipeline {
     }
     stages {
         stage('Build') {
-
-            // just for demo
-            withCredentials([usernamePassword(
-                credentialsId: 'github-pat',         // matches the ID in Jenkins credentials store                                                                                         
-                usernameVariable: 'DEPLOY_USER',     // Jenkins sets $DEPLOY_USER = stored username                                                                                         
-                passwordVariable: 'DEPLOY_PASS'      // Jenkins sets $DEPLOY_PASS = stored password                                                                                         
-            )]) {                                                                                                                                                                           
-                sh 'echo "User is $DEPLOY_USER"'                                                                                                                             
-                sh 'echo "PAT is $DEPLOY_PASS"'                                                                                                 
-            }   
-
             steps {
+                // just for demo
+                withCredentials([usernamePassword(
+                    credentialsId: 'github-pat',         // matches the ID in Jenkins credentials store                                                                                         
+                    usernameVariable: 'DEPLOY_USER',     // Jenkins sets $DEPLOY_USER = stored username                                                                                         
+                    passwordVariable: 'DEPLOY_PASS'      // Jenkins sets $DEPLOY_PASS = stored password                                                                                         
+                )]) {                                                                                                                                                                           
+                    sh 'echo "User is $DEPLOY_USER"'                                                                                                                             
+                    sh 'echo "PAT is $DEPLOY_PASS"'                                                                                                 
+                }   
+
                 sh 'bazel build --config=ci //cpp-task:main //go-task:go_bin //java-task:main'
             }
         }
