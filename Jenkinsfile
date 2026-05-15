@@ -15,10 +15,16 @@ pipeline {
                 echo 'start test'
             }
         }
+        stage('Deploy') {
+            steps {
+                echo 'start deploy'
+            }
+        }
     }
     post {
         failure {
             // slack/email notification
+            echo 'failure'
         }
     }
 }
