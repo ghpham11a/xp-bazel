@@ -2,6 +2,7 @@ pipeline {
     agent {
         docker {
             image 'gcr.io/bazel-public/bazel:latest'
+            args '--entrypoint='
         }
     }
     options {
