@@ -1,3 +1,11 @@
+// Module 6: Multibranch Pipeline
+// Jenkins scans this repo, finds the Jenkinsfile on every branch/PR,
+// and creates a job per branch automatically.
+// Setup: New Item → Multibranch Pipeline → Add "GitHub" branch source →
+//   configure GitHub App or PAT credentials, set webhook for fast feedback.
+// Fork PRs: use "Trust" strategy = "Contributors" or require admin approval
+//   to prevent untrusted code from running on your agents.
+
 pipeline {
     agent none
     options {
@@ -30,7 +38,6 @@ pipeline {
                 }
                 stage('Build') {
                     steps {
-                        // just for demo
                         withCredentials([usernamePassword(
                             credentialsId: 'github-pat',
                             usernameVariable: 'DEPLOY_USER',
@@ -41,6 +48,14 @@ pipeline {
                         }
 
                         sh 'bazel build --config=ci //cpp-task:main //go-task:go_bin //java-task:main'
+                    }
+                }
+                // Integration tests — only on master, too slow for every PR
+                stage('Integration Tests') {
+                    when { branch 'master' }
+                    steps {
+                        sh 'echo "Running slow integration tests..."'
+                        // sh 'bazel test --config=ci //integration/...'
                     }
                 }
                 stage('Deploy to Staging') {
@@ -77,7 +92,7 @@ pipeline {
     }
     post {
         always {
-            echo 'Pipeline complete'
+            echo "Pipeline complete — branch: ${env.BRANCH_NAME}"
         }
         success {
             echo 'All stages passed'

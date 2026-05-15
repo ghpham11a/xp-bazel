@@ -1,0 +1,9 @@
+# ngrok start --all --config jenkins.ngrok.yaml
+version: "2"
+authtoken: 1QqbYjGCmPm75JUpeipRRGxUQ7a_S2nh9weqPUuFdeU1SA4b
+
+tunnels:
+  jenkins:
+    addr: 8080
+    proto: http
+    hostname: xp-jenkins.ngrok.dev
