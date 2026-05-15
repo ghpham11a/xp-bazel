@@ -7,26 +7,26 @@ pipeline {
     stages {
         stage('Build') {
             steps {
-                bazel build --config=ci //cpp-task:main //go-task:go_bin //java-task:main
+                sh 'bazel build --config=ci //cpp-task:main //go-task:go_bin //java-task:main'
             }
         }
         stage('Test') {
             steps {
-                bazel test --config=ci //...
+                sh 'bazel test --config=ci //...'
             }
         }
         stage('Deploy') {
             steps {
-                mkdir -p artifacts
-                cp bazel-bin/cpp-task/main artifacts/cpp-main
-                cp bazel-bin/go-task/go_bin_/go_bin artifacts/go-bin
-                cp bazel-bin/java-task/main.jar artifacts/main.jar
+                sh 'mkdir -p artifacts'
+                sh 'cp bazel-bin/cpp-task/main artifacts/cpp-main'
+                sh 'cp bazel-bin/go-task/go_bin_/go_bin artifacts/go-bin'
+                sh 'cp bazel-bin/java-task/main.jar artifacts/main.jar'
 
                 echo '=== Build Artifacts ==='
 
-                ls -la bazel-bin/cpp-task/main
-                ls -la bazel-bin/go-task/go_bin_/go_bin
-                ls -la bazel-bin/java-task/main.jar 
+                sh 'ls -la bazel-bin/cpp-task/main'
+                sh 'ls -la bazel-bin/go-task/go_bin_/go_bin'
+                sh 'ls -la bazel-bin/java-task/main.jar'
             }
         }
     }
